@@ -100,6 +100,14 @@
 
   .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--ink);color:var(--cream);font-family:'Noto Serif TC',serif;font-size:12px;font-weight:300;padding:10px 24px;border-radius:2px;opacity:0;transition:all .4s ease;z-index:100;pointer-events:none;white-space:nowrap}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  .save-modal{position:fixed;inset:0;background:rgba(44,40,36,.85);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;animation:fadeIn .3s ease}
+  .save-modal-hint{color:var(--cream);font-family:'Noto Serif TC',serif;font-size:14px;font-weight:300;text-align:center;margin-bottom:16px;line-height:1.8}
+  .save-modal img{max-width:72%;max-height:65vh;border-radius:2px;box-shadow:0 8px 40px rgba(0,0,0,.3)}
+  .save-modal-close{margin-top:20px;color:var(--cream);font-family:'Noto Serif TC',serif;font-size:13px;font-weight:300;letter-spacing:2px;background:transparent;border:1px solid rgba(255,255,255,.3);padding:10px 32px;border-radius:1px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .save-modal-close:active{border-color:var(--gold)}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
   #export-canvas{display:none}
 </style>
 </head>
@@ -604,13 +612,6 @@ function drawStoryCanvas(q) {
       ctx.fillText("Valentine's 2026", cx, bottomLine + 48);
       ctx.globalAlpha = 1;
 
-      // @ handles at bottom of story
-      var handleY = cardY + cardH + 60;
-      ctx.fillStyle = '#9E9590';
-      ctx.font = '300 22px "Noto Serif TC", serif';
-      ctx.fillText('@ceciwuchingsze', cx, handleY);
-      ctx.fillText('@blackmoon_salon', cx, handleY + 36);
-
       resolve(canvas);
     };
     logo.src = LOGO_SRC;
@@ -629,16 +630,39 @@ function wrapText(ctx, text, maxW) {
   return lines;
 }
 
-// Download single bookmark as JPG
+// Download single bookmark — use Web Share API to save to Photos on iOS
 function downloadSingle(idx) {
   var q = currentResult.quotes[idx];
   drawBookmarkCanvas(q).then(function(canvas) {
-    var link = document.createElement('a');
-    link.download = 'blackmoon-valentine-bookmark-' + (idx + 1) + '.jpg';
-    link.href = canvas.toDataURL('image/jpeg', 0.95);
-    link.click();
-    showToast('書籤已儲存 ✦');
+    canvas.toBlob(function(blob) {
+      var file = new File([blob], 'blackmoon-valentine-bookmark-' + (idx + 1) + '.jpg', { type: 'image/jpeg' });
+      // Try Web Share API first (triggers native share sheet → Save Image on iOS)
+      if (navigator.share && navigator.canShare) {
+        var shareData = { files: [file] };
+        if (navigator.canShare(shareData)) {
+          navigator.share(shareData).then(function() {
+            showToast('書籤已儲存 ✦');
+          }).catch(function(err) {
+            if (err.name !== 'AbortError') showImageModal(canvas);
+          });
+          return;
+        }
+      }
+      // Fallback: show image in modal for long-press save
+      showImageModal(canvas);
+    }, 'image/jpeg', 0.95);
   });
+}
+
+// Show image in fullscreen modal for long-press save
+function showImageModal(canvas) {
+  var modal = document.createElement('div');
+  modal.className = 'save-modal';
+  modal.innerHTML =
+    '<div class="save-modal-hint">長按圖片 → 儲存到相簿</div>' +
+    '<img src="' + canvas.toDataURL('image/jpeg', 0.95) + '">' +
+    '<button class="save-modal-close" onclick="this.parentElement.remove()">關閉</button>';
+  document.body.appendChild(modal);
 }
 
 // Share to IG — use Story-sized 1080×1920 canvas
