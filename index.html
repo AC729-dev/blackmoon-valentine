@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -58,8 +59,11 @@
   .result-traits{font-size:12px;color:var(--gold);letter-spacing:1px;margin-bottom:8px}
   .result-description{font-weight:300;font-size:13px;line-height:2;color:var(--ink-light);margin-bottom:32px;max-width:380px;margin-left:auto;margin-right:auto;text-align:left}
 
-  .bookmark-wrapper{margin-bottom:32px;display:flex;flex-direction:column;align-items:center;gap:24px}
+  .bookmark-wrapper{margin-bottom:32px;display:flex;flex-direction:column;align-items:center;gap:20px}
   .bookmark-pair-label{font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--ink-lighter);text-align:center;margin-bottom:4px}
+  .bookmark-save-btn{display:flex;align-items:center;justify-content:center;gap:6px;font-family:'Noto Serif TC',serif;font-size:12px;font-weight:300;letter-spacing:1px;color:var(--ink-light);background:transparent;border:1px solid var(--border);padding:10px 20px;cursor:pointer;border-radius:1px;margin-top:10px;-webkit-tap-highlight-color:transparent;transition:all .25s ease}
+  .bookmark-save-btn:active{border-color:var(--gold);color:var(--ink)}
+  .bookmark-save-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.5}
   .bookmark-card{position:relative;width:280px;min-height:420px;margin:0 auto;background:var(--cream);border:1px solid var(--border);padding:40px 26px 32px;display:flex;flex-direction:column;justify-content:space-between;align-items:center;text-align:center;animation:bookmarkReveal .8s ease .2s both;box-shadow:0 4px 24px rgba(44,40,36,.06)}
   .bookmark-card::before{content:'';position:absolute;top:14px;left:14px;right:14px;bottom:14px;border:.5px solid var(--border);pointer-events:none;opacity:.4}
   .bookmark-top-logo{width:40px;height:40px;border-radius:50%;object-fit:cover;margin-bottom:16px;opacity:.8}
@@ -399,6 +403,10 @@ function showResult() {
     '<div class="bookmark-occasion">Valentine\'s 2026</div>' +
     '</div>' +
     '</div>' +
+    '<button class="bookmark-save-btn" onclick="downloadSingle(0)">' +
+    '<svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>' +
+    '儲存此書籤' +
+    '</button>' +
 
     '<div class="bookmark-pair-label">Bookmark II</div>' +
     '<div class="bookmark-card" id="bookmark-card-2" style="animation-delay:.4s">' +
@@ -414,6 +422,10 @@ function showResult() {
     '<div class="bookmark-occasion">Valentine\'s 2026</div>' +
     '</div>' +
     '</div>' +
+    '<button class="bookmark-save-btn" onclick="downloadSingle(1)">' +
+    '<svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>' +
+    '儲存此書籤' +
+    '</button>' +
     '</div>' +
 
     '<div class="analysis-card">' +
@@ -422,10 +434,9 @@ function showResult() {
     '</div>' +
 
     '<div class="actions">' +
-    '<button class="btn-primary" onclick="downloadBookmark()">儲存書籤圖片</button>' +
     '<button class="btn-ig" onclick="shareToIG()">' +
     '<svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>' +
-    '分享到 Instagram' +
+    '分享到 Instagram Story' +
     '</button>' +
     '<button class="btn-secondary" onclick="restartQuiz()">重新測驗</button>' +
     '</div>' +
@@ -450,7 +461,9 @@ function restartQuiz() {
 }
 
 // ===== EXPORT =====
-function drawSingleBookmarkCanvas(q) {
+
+// Bookmark-only canvas (for individual save) — JPG
+function drawBookmarkCanvas(q) {
   return new Promise(function(resolve) {
     var W = 600, H = 960, S = 2;
     var canvas = document.createElement('canvas');
@@ -509,6 +522,101 @@ function drawSingleBookmarkCanvas(q) {
   });
 }
 
+// IG Story canvas (1080×1920) — bookmark centered with @ handles
+function drawStoryCanvas(q) {
+  return new Promise(function(resolve) {
+    var W = 1080, H = 1920, S = 1;
+    var canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    var ctx = canvas.getContext('2d');
+
+    // Background
+    ctx.fillStyle = '#FAF7F2';
+    ctx.fillRect(0, 0, W, H);
+
+    // Subtle gradient overlay
+    var grd = ctx.createRadialGradient(W/2, H*0.35, 100, W/2, H*0.35, W);
+    grd.addColorStop(0, 'rgba(196,162,101,0.04)');
+    grd.addColorStop(1, 'rgba(196,162,101,0)');
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, W, H);
+
+    var cx = W / 2;
+    ctx.textAlign = 'center';
+
+    // Bookmark card area
+    var cardW = 520, cardH = 820;
+    var cardX = (W - cardW) / 2;
+    var cardY = 200;
+
+    // Card border
+    ctx.strokeStyle = '#E0D8CE'; ctx.lineWidth = 1;
+    ctx.strokeRect(cardX, cardY, cardW, cardH);
+    // Inner border
+    ctx.strokeStyle = '#E0D8CE'; ctx.lineWidth = 0.5;
+    ctx.globalAlpha = 0.4;
+    ctx.strokeRect(cardX + 16, cardY + 16, cardW - 32, cardH - 32);
+    ctx.globalAlpha = 1;
+
+    var logo = new Image();
+    logo.onload = function() {
+      // Logo
+      var logoR = 32;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cardY + 60, logoR, 0, Math.PI * 2);
+      ctx.clip();
+      ctx.drawImage(logo, cx - logoR, cardY + 60 - logoR, logoR * 2, logoR * 2);
+      ctx.restore();
+
+      // Chinese quote
+      ctx.fillStyle = '#2C2824';
+      ctx.font = '400 28px "Noto Serif TC", serif';
+      var zhLines = q.zh.split('\n').reduce(function(acc, l) { return acc.concat(wrapText(ctx, l, cardW - 80)); }, []);
+      var y = cardY + 140;
+      zhLines.forEach(function(line) { ctx.fillText(line, cx, y); y += 52; });
+
+      // Original quote
+      y += 16;
+      ctx.fillStyle = '#9E9590';
+      ctx.font = 'italic 20px "EB Garamond", serif';
+      wrapText(ctx, q.original, cardW - 70).forEach(function(line) { ctx.fillText(line, cx, y); y += 34; });
+
+      // Author
+      y += 28;
+      ctx.fillStyle = '#C4A265';
+      ctx.font = '18px "Cormorant Garamond", serif';
+      ctx.fillText(q.author.toUpperCase(), cx, y);
+      y += 28;
+      ctx.fillStyle = '#9E9590';
+      ctx.font = '300 20px "Noto Serif TC", serif';
+      ctx.fillText(q.authorZh, cx, y);
+
+      // Card bottom line
+      var bottomLine = cardY + cardH - 60;
+      ctx.strokeStyle = '#E0D8CE'; ctx.lineWidth = 0.5;
+      ctx.beginPath(); ctx.moveTo(cardX + 50, bottomLine); ctx.lineTo(cardX + cardW - 50, bottomLine); ctx.stroke();
+      ctx.fillStyle = '#9E9590';
+      ctx.font = '16px "Cormorant Garamond", serif';
+      ctx.fillText('BLACKMOON SALON', cx, bottomLine + 28);
+      ctx.font = 'italic 14px "Cormorant Garamond", serif';
+      ctx.globalAlpha = 0.5;
+      ctx.fillText("Valentine's 2026", cx, bottomLine + 48);
+      ctx.globalAlpha = 1;
+
+      // @ handles at bottom of story
+      var handleY = cardY + cardH + 60;
+      ctx.fillStyle = '#9E9590';
+      ctx.font = '300 22px "Noto Serif TC", serif';
+      ctx.fillText('@ceciwuchingsze', cx, handleY);
+      ctx.fillText('@blackmoon_salon', cx, handleY + 36);
+
+      resolve(canvas);
+    };
+    logo.src = LOGO_SRC;
+  });
+}
+
 function wrapText(ctx, text, maxW) {
   var chars = text.split('');
   var lines = []; var cur = '';
@@ -521,62 +629,64 @@ function wrapText(ctx, text, maxW) {
   return lines;
 }
 
-function downloadBookmark() {
-  var quotes = currentResult.quotes;
-  drawSingleBookmarkCanvas(quotes[0]).then(function(c1) {
-    var link1 = document.createElement('a');
-    link1.download = 'blackmoon-valentine-bookmark-1.png';
-    link1.href = c1.toDataURL('image/png');
-    link1.click();
-    setTimeout(function() {
-      drawSingleBookmarkCanvas(quotes[1]).then(function(c2) {
-        var link2 = document.createElement('a');
-        link2.download = 'blackmoon-valentine-bookmark-2.png';
-        link2.href = c2.toDataURL('image/png');
-        link2.click();
-        showToast('兩張書籤已儲存 ✦');
-      });
-    }, 600);
+// Download single bookmark as JPG
+function downloadSingle(idx) {
+  var q = currentResult.quotes[idx];
+  drawBookmarkCanvas(q).then(function(canvas) {
+    var link = document.createElement('a');
+    link.download = 'blackmoon-valentine-bookmark-' + (idx + 1) + '.jpg';
+    link.href = canvas.toDataURL('image/jpeg', 0.95);
+    link.click();
+    showToast('書籤已儲存 ✦');
   });
 }
 
+// Share to IG — use Story-sized 1080×1920 canvas
 function shareToIG() {
   var quotes = currentResult.quotes;
-  drawSingleBookmarkCanvas(quotes[0]).then(function(canvas) {
-    canvas.toBlob(function(blob) {
-      if (navigator.share && navigator.canShare) {
-        var file = new File([blob], 'blackmoon-valentine-1.png', { type: 'image/png' });
-        // Try sharing both files
-        drawSingleBookmarkCanvas(quotes[1]).then(function(canvas2) {
-          canvas2.toBlob(function(blob2) {
-            var file2 = new File([blob2], 'blackmoon-valentine-2.png', { type: 'image/png' });
-            var shareData = { files: [file, file2] };
+  drawStoryCanvas(quotes[0]).then(function(canvas1) {
+    canvas1.toBlob(function(blob1) {
+      drawStoryCanvas(quotes[1]).then(function(canvas2) {
+        canvas2.toBlob(function(blob2) {
+          var file1 = new File([blob1], 'blackmoon-valentine-story-1.jpg', { type: 'image/jpeg' });
+          var file2 = new File([blob2], 'blackmoon-valentine-story-2.jpg', { type: 'image/jpeg' });
+
+          if (navigator.share && navigator.canShare) {
+            var shareData = { files: [file1, file2] };
             if (navigator.canShare(shareData)) {
               navigator.share(shareData).then(function() {
                 showToast('已開啟分享 ✦');
-              }).catch(function() { fallbackDownloadBoth(); });
+              }).catch(function() { fallbackStoryDownload(canvas1, canvas2); });
               return;
             }
-            // Fallback: share just one
-            var singleShare = { files: [file] };
-            if (navigator.canShare(singleShare)) {
-              navigator.share(singleShare).then(function() {
+            // Try single file
+            var single = { files: [file1] };
+            if (navigator.canShare(single)) {
+              navigator.share(single).then(function() {
                 showToast('已開啟分享 ✦');
-              }).catch(function() { fallbackDownloadBoth(); });
+              }).catch(function() { fallbackStoryDownload(canvas1, canvas2); });
               return;
             }
-            fallbackDownloadBoth();
-          }, 'image/png');
-        });
-        return;
-      }
-      fallbackDownloadBoth();
-    }, 'image/png');
+          }
+          fallbackStoryDownload(canvas1, canvas2);
+        }, 'image/jpeg', 0.95);
+      });
+    }, 'image/jpeg', 0.95);
   });
 }
 
-function fallbackDownloadBoth() {
-  downloadBookmark();
+function fallbackStoryDownload(c1, c2) {
+  var link1 = document.createElement('a');
+  link1.download = 'blackmoon-valentine-story-1.jpg';
+  link1.href = c1.toDataURL('image/jpeg', 0.95);
+  link1.click();
+  setTimeout(function() {
+    var link2 = document.createElement('a');
+    link2.download = 'blackmoon-valentine-story-2.jpg';
+    link2.href = c2.toDataURL('image/jpeg', 0.95);
+    link2.click();
+    showToast('Story 圖片已儲存，請到 Instagram 分享 ✦');
+  }, 600);
 }
 
 function showToast(msg) {
